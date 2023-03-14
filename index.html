@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo-App</title>
+    <link rel="stylesheet" href="./assets/css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"
+    />
+  </head>
+  <body>
+    <main>
+      <section class="wrapper">
+        <div class="app__wrapper">
+          <form>
+            <input
+              type="search"
+              id="task"
+              placeholder="✍️ Take a note..."
+              class="user__request"
+            />
+            <button class="add__btn" onclick="addTodo()">Add</button>
+          </form>
+          <ul id="todoList"></ul>
+        </div>
+      </section>
+    </main>
+    <script src="./assets/js/script.js"></script>
+  </body>
+</html>

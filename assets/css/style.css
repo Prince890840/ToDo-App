@@ -1,0 +1,159 @@
+*,
+*::after,
+*::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* colors */
+  --primary-color: #ffc600;
+  --add-btn-color: #9b59b6;
+  --text-color: #ffffff;
+}
+
+body {
+  background-color: var(--primary-color);
+  width: 100%;
+  height: 100%;
+}
+
+main {
+  width: 100%;
+  height: 100%;
+}
+
+.wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.app__wrapper {
+  text-align: center;
+  padding: 15px;
+}
+
+.user__request {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  width: 435px;
+  outline: none;
+}
+
+.add__btn {
+  background-color: var(--add-btn-color);
+  color: var(--text-color);
+  border: 1px solid var(--add-btn-color);
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.app__wrapper ul {
+  list-style: none;
+  color: black;
+  padding-top: 10px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.task {
+  font-size: 18px;
+  padding: 10px;
+  border-radius: 0;
+  width: 40%;
+}
+
+.task:focus {
+  outline: none;
+}
+
+.app__wrapper ul li i {
+  cursor: pointer;
+}
+
+.app__wrapper ul li {
+  margin-top: 1px;
+  background-color: var(--text-color);
+  display: flex;
+  align-items: center;
+  -webkit-box-shadow: 5px 5px 5px 2px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 5px 5px 5px 2px rgba(0, 0, 0, 0.4);
+  box-shadow: 5px 5px 5px 2px rgba(0, 0, 0, 0.4);
+}
+
+.app__wrapper ul li:first-child {
+  border-top-left-radius: 5px;
+}
+
+.app__wrapper ul li:last-child {
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.check__mark {
+  padding: 12px;
+  border-right: 1px solid gray;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete__icon,
+.edit__icon {
+  padding: 10px;
+  border-left: 1px solid gray;
+}
+
+.edit__icon {
+  color: rgb(98, 98, 255);
+}
+
+.delete__icon {
+  color: rgb(255, 82, 82);
+}
+
+form {
+  position: relative;
+}
+
+input::-webkit-search-cancel-button:after {
+  content: "✖️";
+  position: absolute;
+  tranform: translate(-50%, -50%);
+}
+
+p {
+  width: 100%;
+  text-align: start;
+  padding: 10px;
+}
+
+@media only screen and (min-width: 320px) and (max-width: 480px) {
+  .wrapper {
+    max-width: 600px;
+  }
+
+  .user__request {
+    width: 238px;
+  }
+
+  .app__wrapper ul {
+    max-width: 320px;
+  }
+}
+
+@media only screen and (min-width: 481px) and (max-width: 768px) {
+  .wrapper {
+    max-width: 800px;
+  }
+
+  .user__request {
+    width: 350px;
+  }
+
+  .app__wrapper ul {
+    max-width: 395px;
+  }
+}
