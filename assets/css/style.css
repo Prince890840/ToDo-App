@@ -54,6 +54,10 @@ main {
   cursor: pointer;
 }
 
+.edit__btn {
+  margin-left: -50px;
+}
+
 .app__wrapper ul {
   list-style: none;
   color: black;
@@ -159,6 +163,14 @@ p {
 .completed {
   text-decoration: line-through;
   background: #d3d1d1;
+}
+
+.btn__visibility {
+  visibility: hidden;
+}
+
+.visibility {
+  visibility: visible;
 }
 
 @media only screen and (min-width: 320px) and (max-width: 480px) {

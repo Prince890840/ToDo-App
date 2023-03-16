@@ -4,14 +4,14 @@ const list = document.querySelector("ul");
 
 const todoForm = document.querySelector("form");
 
-let errorMessage = document.getElementById("msg");
+let message = document.getElementById("msg");
 
 let dateInput = document.getElementById("dateInput");
 
 let addButton = document.querySelector(".add__btn");
 
 let editButton = document.querySelector(".edit__btn");
-editButton.style.display = "none";
+editButton.classList.add("btn__visibility");
 
 var today = new Date().toISOString().split("T")[0];
 document.getElementsByName("date")[0].setAttribute("min", today);
@@ -52,7 +52,7 @@ function renderTodoList() {
           onfocus="getCurrentTask(this)" 
           onblur="editTodoItem(this)"
           >
-          <input type="date" class="date__box" value=${
+          <input type="date" name="date" class="date__box" value=${
             task?.date
           } onfocus="getCurrentDate(this)" onchange="editTodoItem(this)"
           >
@@ -71,16 +71,16 @@ function renderTodoList() {
 function addTodo() {
   try {
     if (task.value === "" && dateInput.value === "") {
-      errorMessage.innerHTML = "Task and date can't be blank.";
+      message.innerHTML = "Task and date can't be blank.";
       return;
     } else if (task.value === "") {
-      errorMessage.innerHTML = "Todo can't be blank.";
+      message.innerHTML = "Todo can't be blank.";
       return;
     } else if (dateInput.value === "") {
-      errorMessage.innerHTML = "Date can't be blank.";
+      message.innerHTML = "Date can't be blank.";
       return;
     } else {
-      errorMessage.innerHTML = "";
+      message.innerHTML = "";
     }
 
     const taskInput = task.value.trim();
@@ -104,12 +104,13 @@ function addTodo() {
     li.innerHTML = `
           <input type="checkbox" onclick="toggleTodoItem(this)" id="check">
           <input type="text" value="${task?.value}" class="task" onblur="editTodoItem(this)" onfocus="getCurrentTask(this)">
-          <input type="date" class="date__box" value=${payload?.date} onchange="editTodoItem(this)" onfocus="getCurrentDate(this)">
+          <input type="date" name="date" class="date__box" value=${payload?.date} onchange="editTodoItem(this)" onfocus="getCurrentDate(this)">
           <i class="fas fa-edit" id="edit__icon" class="edit__task" onclick="updateTodoItem(this,${payload?.todo_id})"></i>
           <i class="fa fa-trash" onclick="deleteTodoItem(this)"></i>
         `;
     list.insertBefore(li, list.children[0]);
-
+    message.innerHTML = "Task created successfully.";
+    message.style.color = "green";
     resetForm();
   } catch (error) {
     console.log(error);
@@ -148,8 +149,9 @@ function deleteTodoItem(event) {
       });
     localStorage.setItem("tasks", JSON.stringify(todoList));
     event.parentElement.remove();
-    editButton.style.display = "none";
-    addButton.style.display = "block";
+    addButton.classList.add("visibility");
+    addButton.classList.remove("btn__visibility");
+    editButton.classList.remove("visibility");
     resetForm();
   } catch (error) {
     console.log(error);
@@ -184,8 +186,8 @@ function updateTodoItem(event, todoId) {
     todoList?.find((item) => item.todo_id === todoId);
   task.value = todo?.task;
   dateInput.value = todo?.date;
-  addButton.style.display = "none";
-  editButton.style.display = "block";
+  addButton.classList.add("btn__visibility");
+  editButton.classList.add("visibility");
 }
 
 editButton.addEventListener("click", (event) => {
@@ -222,7 +224,11 @@ const editCurrentTask = (taskId) => {
     date: dateInput.value,
   };
   localStorage.setItem("tasks", JSON.stringify(todoList));
-  addButton.style.display = "block";
-  editButton.style.display = "none";
+  addButton.classList.add("visibility");
+  addButton.classList.remove("btn__visibility");
+  editButton.classList.remove("visibility");
+  message.innerHTML = "Task updated successfully.";
+  message.style.color = "green";
   renderTodoList();
+  resetForm();
 };
