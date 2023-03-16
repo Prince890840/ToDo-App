@@ -44,18 +44,20 @@ main {
   margin-bottom: 10px;
 }
 
-.add__btn {
+.add__btn,
+.edit__btn {
   background-color: var(--add-btn-color);
   color: var(--text-color);
   border: 1px solid var(--add-btn-color);
   padding: 10px;
   border-radius: 5px;
+  cursor: pointer;
 }
 
 .app__wrapper ul {
   list-style: none;
   color: black;
-  max-width: 640px;
+  max-width: 780px;
   margin: 0 auto;
 }
 
@@ -63,7 +65,10 @@ main {
   font-size: 18px;
   padding: 10px;
   border-radius: 0;
-  width: 40%;
+  width: 100%;
+  border: none;
+  border-left: 1px solid gray;
+  border-right: 1px solid gray;
 }
 
 .task:focus {
@@ -72,6 +77,37 @@ main {
 
 .app__wrapper ul li i {
   cursor: pointer;
+  padding: 12px;
+  border-left: 1px solid gray;
+  color: rgb(255, 82, 82);
+}
+
+.date__box {
+  width: 22%;
+  margin: 0 10px;
+}
+
+.input__bg {
+  background-color: gray;
+}
+
+#dateInput {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  outline: none;
+}
+
+#msg {
+  color: red;
+  font-size: 12px;
+  max-width: 770px;
+  text-align: start;
+  margin: 0 auto;
+}
+
+#edit__icon {
+  color: rgb(98, 98, 255);
 }
 
 .app__wrapper ul li {
@@ -93,26 +129,11 @@ main {
   border-bottom-left-radius: 5px;
 }
 
-.check__mark {
-  padding: 12px;
-  border-right: 1px solid gray;
+#check {
+  margin: 12px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-}
-
-.delete__icon,
-.edit__icon {
-  padding: 10px;
-  border-left: 1px solid gray;
-}
-
-.edit__icon {
-  color: rgb(98, 98, 255);
-}
-
-.delete__icon {
-  color: rgb(255, 82, 82);
 }
 
 form {
@@ -120,15 +141,24 @@ form {
 }
 
 input::-webkit-search-cancel-button:after {
-  content: "✖️";
+  content: "X";
   position: absolute;
   tranform: translate(-50%, -50%);
+}
+
+input::-webkit-search-cancel-button:hover {
+  cursor: pointer;
 }
 
 p {
   width: 100%;
   text-align: start;
   padding: 10px;
+}
+
+.completed {
+  text-decoration: line-through;
+  background: #d3d1d1;
 }
 
 @media only screen and (min-width: 320px) and (max-width: 480px) {

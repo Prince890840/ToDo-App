@@ -1,50 +1,57 @@
-let todoList = JSON.parse(localStorage.getItem("todoList")) || [];
+const task = document.querySelector("form input");
 
-renderTodoList();
+const list = document.querySelector("ul");
+
+const todoForm = document.querySelector("form");
+
+let errorMessage = document.getElementById("msg");
+
+let dateInput = document.getElementById("dateInput");
+
+let addButton = document.querySelector(".add__btn");
+
+let editButton = document.querySelector(".edit__btn");
+editButton.style.display = "none";
+
+var today = new Date().toISOString().split("T")[0];
+document.getElementsByName("date")[0].setAttribute("min", today);
+
+window.onload = renderTodoList;
+
+function resetForm() {
+  task.value = "";
+  dateInput.value = "";
+}
 
 function renderTodoList() {
   try {
-    const todoListElement = document.getElementById("todoList");
-    const taskInput = document.getElementById("task");
-    taskInput.focus();
-    todoListElement.innerHTML = "";
+    if (localStorage.getItem("tasks") == null) return;
+
+    let todoList = Array.from(JSON.parse(localStorage.getItem("tasks")));
+
     todoList &&
       todoList?.length > 0 &&
-      todoList?.forEach((todo) => {
-        const todoElement = document.createElement("li");
-        const checkboxElement = document.createElement("input");
-
-        const todoStatusDiv = document.createElement("div");
-        const todoTaskPara = document.createElement("p");
-        const todoEditDiv = document.createElement("div");
-        const todoDeleteDiv = document.createElement("div");
-
-        checkboxElement.type = "checkbox";
-        checkboxElement.checked = todo?.todo_status;
-        checkboxElement.onchange = () => toggleTodoItem(todo?.id);
-
-        todoStatusDiv.appendChild(checkboxElement);
-        todoStatusDiv.classList.add("check__mark");
-        todoElement.appendChild(todoStatusDiv);
-
-        todoTaskPara.appendChild(document.createTextNode(todo?.task));
-        todoElement.appendChild(todoTaskPara);
-        if (todo?.todo_status) {
-          todoElement.style.textDecoration = "line-through";
-          todoTaskPara.style.backgroundColor = "rgb(229 223 223)";
-        }
-
-        todoEditDiv.innerHTML = '<i class="fas fa-edit"></i>';
-        todoEditDiv.classList.add("edit__icon");
-        todoEditDiv.onclick = () => editTodoItem(todo?.id);
-
-        todoDeleteDiv.innerHTML = '<i class="fas fa-trash"></i>';
-        todoDeleteDiv.classList.add("delete__icon");
-        todoDeleteDiv.onclick = () => deleteTodoItem(todo?.id);
-
-        todoElement.appendChild(todoEditDiv);
-        todoElement.appendChild(todoDeleteDiv);
-        todoListElement.appendChild(todoElement);
+      todoList?.forEach((task) => {
+        const list = document.querySelector("ul");
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <input type="checkbox" 
+          onclick="toggleTodoItem(this)" id="check" ${
+            task.completed ? "checked" : ""
+          }>
+          <input type="text" value="${task?.task}" class="task ${
+          task.completed ? "completed" : ""
+        }"
+          onfocus="getCurrentTask(this)" 
+          onblur="editTodoItem(this)"
+          >
+          <input type="date" class="date__box" value=${
+            task?.date
+          } onfocus="getCurrentDate(this)" onchange="editTodoItem(this)"
+          >
+          <i class="fa fa-trash" onclick="deleteTodoItem(this)"></i>
+        `;
+        list.insertBefore(li, list.children[0]);
       });
   } catch (error) {
     console.log(error);
@@ -53,66 +60,114 @@ function renderTodoList() {
 
 function addTodo() {
   try {
-    const taskInput = document.getElementById("task");
-    const task = taskInput.value.trim();
-    if (!task) {
-      alert("Please enter a task");
+    if (task.value === "" && dateInput.value === "") {
+      errorMessage.innerHTML = "Task and date can't be blank.";
       return;
+    } else if (task.value === "") {
+      errorMessage.innerHTML = "Todo can't be blank.";
+      return;
+    } else if (dateInput.value === "") {
+      errorMessage.innerHTML = "Date can't be blank.";
+      return;
+    } else {
+      errorMessage.innerHTML = "";
     }
-    const todo = {
-      id: new Date().getTime(),
-      task: task,
-      todo_status: false,
+
+    const taskInput = task.value.trim();
+
+    const payload = {
+      todo_id: new Date().getTime(),
+      task: taskInput,
+      completed: false,
+      date: dateInput.value,
     };
-    todoList?.push(todo);
-    localStorage.setItem("todoList", JSON.stringify(todoList));
-    taskInput.value = "";
-    renderTodoList();
+
+    localStorage.setItem(
+      "tasks",
+      JSON.stringify([
+        ...JSON.parse(localStorage.getItem("tasks") || "[]"),
+        payload,
+      ])
+    );
+
+    const li = document.createElement("li");
+    li.innerHTML = `
+          <input type="checkbox" onclick="toggleTodoItem(this)" id="check">
+          <input type="text" value="${task?.value}" class="task" onblur="editTodoItem(this)">
+          <input type="date" class="date__box" value=${payload?.date}>
+          <i class="fa fa-trash" onclick="deleteTodoItem(this)"></i>
+        `;
+    list.insertBefore(li, list.children[0]);
+
+    resetForm();
   } catch (error) {
     console.log(error);
   }
 }
 
-function editTodoItem(todoId) {
+todoForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  addTodo();
+});
+
+function toggleTodoItem(event) {
   try {
-    const todo =
-      todoList &&
-      todoList?.length > 0 &&
-      todoList?.find((item) => item.id === todoId);
-    const newTask = prompt("Enter new task:", todo?.task);
-    if (!newTask) {
-      return;
-    }
-    todo.task = newTask;
-    localStorage.setItem("todoList", JSON.stringify(todoList));
-    renderTodoList();
+    let tasks = Array.from(JSON.parse(localStorage.getItem("tasks")));
+    tasks.forEach((task) => {
+      if (task.task === event.nextElementSibling.value) {
+        task.completed = !task.completed;
+      }
+    });
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+    event.nextElementSibling.classList.toggle("completed");
   } catch (error) {
     console.log(error);
   }
 }
 
-function deleteTodoItem(todoId) {
+function deleteTodoItem(event) {
   try {
-    todoList =
-      todoList &&
+    let todoList = Array.from(JSON.parse(localStorage.getItem("tasks")));
+    todoList &&
       todoList?.length > 0 &&
-      todoList?.filter((item) => item.id !== todoId);
-    localStorage.setItem("todoList", JSON.stringify(todoList));
-    renderTodoList();
+      todoList?.forEach((task) => {
+        if (task.task === event.parentNode.children[1].value) {
+          todoList?.splice(todoList.indexOf(task), 1);
+        }
+      });
+    localStorage.setItem("tasks", JSON.stringify(todoList));
+    event.parentElement.remove();
+    resetForm();
   } catch (error) {
     console.log(error);
   }
 }
 
-function toggleTodoItem(todoId) {
+var currentTask = null;
+var currentDueDate = null;
+
+function getCurrentTask(event) {
+  currentTask = event.value;
+}
+
+function getCurrentDate(event) {
+  currentDueDate = event.value;
+}
+
+function editTodoItem(event) {
   try {
-    const todo =
-      todoList &&
+    let todoList = Array.from(JSON.parse(localStorage.getItem("tasks")));
+    todoList &&
       todoList?.length > 0 &&
-      todoList?.find((item) => item.id === todoId);
-    todo.todo_status = !todo?.todo_status;
-    localStorage.setItem("todoList", JSON.stringify(todoList));
-    renderTodoList();
+      todoList?.forEach((task) => {
+        if (task.task === currentTask) {
+          task.task = event.value;
+        }
+        if (task.date === currentDueDate) {
+          task.date = event.value;
+        }
+      });
+    localStorage.setItem("tasks", JSON.stringify(todoList));
   } catch (error) {
     console.log(error);
   }

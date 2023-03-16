@@ -28,7 +28,15 @@
               placeholder="✍️ Take a note..."
               class="user__request"
             />
-            <button class="add__btn" onclick="addTodo()">Add</button>
+            <input
+              type="date"
+              class="form-control"
+              name="date"
+              id="dateInput"
+            />
+            <button class="add__btn" type="submit" id="btn">Add</button>
+            <button class="edit__btn" type="submit" id="edit">Edit</button>
+            <div id="msg"></div>
           </form>
           <ul id="todoList"></ul>
         </div>
