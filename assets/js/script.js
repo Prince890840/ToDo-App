@@ -28,8 +28,10 @@ let taskId;
 function renderTodoList() {
   try {
     const list = document.querySelector("ul");
+    list.innerHTML = "";
 
     while (list.firstChild) {
+      console.log("Inside");
       list.removeChild(list.firstChild);
     }
 
@@ -70,6 +72,7 @@ function renderTodoList() {
 
 function addTodo() {
   try {
+    console.log("addTodo called");
     if (task.value === "" && dateInput.value === "") {
       message.innerHTML = "Task and date can't be blank.";
       return;
@@ -195,24 +198,12 @@ editButton.addEventListener("click", (event) => {
   editCurrentTask(taskId);
 });
 
-/* function editCurrentTask(taskId) {
-  let todoList = Array.from(JSON.parse(localStorage.getItem("tasks")));
-  const todo =
-    todoList &&
-    todoList?.length > 0 &&
-    todoList?.find((item) => item.todo_id === taskId);
-  const taskInput = task.value.trim();
-
-  const index = todoList.findIndex((obj) => obj.todo_id === taskId);
-
-  todoList[index].todo_id = taskId;
-  todoList[index].task = taskInput;
-  todoList[index].date = dateInput.value;
-  todoList[index].completed = todo.completed ? true : false;
-
-  localStorage.setItem("tasks", JSON.stringify(todoList));
-  renderTodoList();
-} */
+task.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" || event.keyCode === 13) {
+    event.preventDefault();
+    editCurrentTask(taskId);
+  }
+});
 
 const editCurrentTask = (taskId) => {
   const todoList = JSON.parse(localStorage.getItem("tasks")) || [];
