@@ -23,8 +23,16 @@ function resetForm() {
   dateInput.value = "";
 }
 
+let taskId;
+
 function renderTodoList() {
   try {
+    const list = document.querySelector("ul");
+
+    while (list.firstChild) {
+      list.removeChild(list.firstChild);
+    }
+
     if (localStorage.getItem("tasks") == null) return;
 
     let todoList = Array.from(JSON.parse(localStorage.getItem("tasks")));
@@ -32,7 +40,6 @@ function renderTodoList() {
     todoList &&
       todoList?.length > 0 &&
       todoList?.forEach((task) => {
-        const list = document.querySelector("ul");
         const li = document.createElement("li");
         li.innerHTML = `
           <input type="checkbox" 
@@ -49,6 +56,9 @@ function renderTodoList() {
             task?.date
           } onfocus="getCurrentDate(this)" onchange="editTodoItem(this)"
           >
+          <i class="fas fa-edit" id="edit__icon" class="edit__task" onclick="updateTodoItem(this,${
+            task?.todo_id
+          })"></i>
           <i class="fa fa-trash" onclick="deleteTodoItem(this)"></i>
         `;
         list.insertBefore(li, list.children[0]);
@@ -93,8 +103,9 @@ function addTodo() {
     const li = document.createElement("li");
     li.innerHTML = `
           <input type="checkbox" onclick="toggleTodoItem(this)" id="check">
-          <input type="text" value="${task?.value}" class="task" onblur="editTodoItem(this)">
-          <input type="date" class="date__box" value=${payload?.date}>
+          <input type="text" value="${task?.value}" class="task" onblur="editTodoItem(this)" onfocus="getCurrentTask(this)">
+          <input type="date" class="date__box" value=${payload?.date} onchange="editTodoItem(this)" onfocus="getCurrentDate(this)">
+          <i class="fas fa-edit" id="edit__icon" class="edit__task" onclick="updateTodoItem(this,${payload?.todo_id})"></i>
           <i class="fa fa-trash" onclick="deleteTodoItem(this)"></i>
         `;
     list.insertBefore(li, list.children[0]);
@@ -137,38 +148,81 @@ function deleteTodoItem(event) {
       });
     localStorage.setItem("tasks", JSON.stringify(todoList));
     event.parentElement.remove();
+    editButton.style.display = "none";
+    addButton.style.display = "block";
     resetForm();
   } catch (error) {
     console.log(error);
   }
 }
 
-var currentTask = null;
-var currentDueDate = null;
+let currentTask = null,
+  currentDueDate = null;
 
-function getCurrentTask(event) {
-  currentTask = event.value;
-}
+const getCurrentTask = (event) => (currentTask = event.value);
+const getCurrentDate = (event) => (currentDueDate = event.value);
 
-function getCurrentDate(event) {
-  currentDueDate = event.value;
-}
-
-function editTodoItem(event) {
+const editTodoItem = (event) => {
   try {
-    let todoList = Array.from(JSON.parse(localStorage.getItem("tasks")));
-    todoList &&
-      todoList?.length > 0 &&
-      todoList?.forEach((task) => {
-        if (task.task === currentTask) {
-          task.task = event.value;
-        }
-        if (task.date === currentDueDate) {
-          task.date = event.value;
-        }
-      });
+    const todoList = JSON.parse(localStorage.getItem("tasks")) || [];
+    todoList.forEach((task) => {
+      if (task.task === currentTask) task.task = event.value;
+      if (task.date === currentDueDate) task.date = event.value;
+    });
     localStorage.setItem("tasks", JSON.stringify(todoList));
   } catch (error) {
     console.log(error);
   }
+};
+
+function updateTodoItem(event, todoId) {
+  taskId = todoId;
+  let todoList = Array.from(JSON.parse(localStorage.getItem("tasks")));
+  const todo =
+    todoList &&
+    todoList?.length > 0 &&
+    todoList?.find((item) => item.todo_id === todoId);
+  task.value = todo?.task;
+  dateInput.value = todo?.date;
+  addButton.style.display = "none";
+  editButton.style.display = "block";
 }
+
+editButton.addEventListener("click", (event) => {
+  event.preventDefault();
+  editCurrentTask(taskId);
+});
+
+/* function editCurrentTask(taskId) {
+  let todoList = Array.from(JSON.parse(localStorage.getItem("tasks")));
+  const todo =
+    todoList &&
+    todoList?.length > 0 &&
+    todoList?.find((item) => item.todo_id === taskId);
+  const taskInput = task.value.trim();
+
+  const index = todoList.findIndex((obj) => obj.todo_id === taskId);
+
+  todoList[index].todo_id = taskId;
+  todoList[index].task = taskInput;
+  todoList[index].date = dateInput.value;
+  todoList[index].completed = todo.completed ? true : false;
+
+  localStorage.setItem("tasks", JSON.stringify(todoList));
+  renderTodoList();
+} */
+
+const editCurrentTask = (taskId) => {
+  const todoList = JSON.parse(localStorage.getItem("tasks")) || [];
+  const taskInput = task.value.trim();
+  const index = todoList?.findIndex((obj) => obj.todo_id === taskId);
+  todoList[index] = {
+    ...todoList[index],
+    task: taskInput,
+    date: dateInput.value,
+  };
+  localStorage.setItem("tasks", JSON.stringify(todoList));
+  addButton.style.display = "block";
+  editButton.style.display = "none";
+  renderTodoList();
+};
