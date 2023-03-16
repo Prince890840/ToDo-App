@@ -48,16 +48,8 @@ function renderTodoList() {
           onclick="toggleTodoItem(this)" id="check" ${
             task.completed ? "checked" : ""
           }>
-          <input type="text" value="${task?.task}" class="task ${
-          task.completed ? "completed" : ""
-        }"
-          onfocus="getCurrentTask(this)" 
-          onblur="editTodoItem(this)"
-          >
-          <input type="date" name="date" class="date__box" value=${
-            task?.date
-          } onfocus="getCurrentDate(this)" onchange="editTodoItem(this)"
-          >
+          <p class="task">${task?.task}</p>
+          <p class="date__box">${formattedDate(task?.date)}</p>
           <i class="fas fa-edit" id="edit__icon" class="edit__task" onclick="updateTodoItem(this,${
             task?.todo_id
           })"></i>
@@ -72,15 +64,17 @@ function renderTodoList() {
 
 function addTodo() {
   try {
-    console.log("addTodo called");
     if (task.value === "" && dateInput.value === "") {
       message.innerHTML = "Task and date can't be blank.";
+      messageDisplayTime();
       return;
     } else if (task.value === "") {
       message.innerHTML = "Todo can't be blank.";
+      messageDisplayTime();
       return;
     } else if (dateInput.value === "") {
       message.innerHTML = "Date can't be blank.";
+      messageDisplayTime();
       return;
     } else {
       message.innerHTML = "";
@@ -106,15 +100,18 @@ function addTodo() {
     const li = document.createElement("li");
     li.innerHTML = `
           <input type="checkbox" onclick="toggleTodoItem(this)" id="check">
-          <input type="text" value="${task?.value}" class="task" onblur="editTodoItem(this)" onfocus="getCurrentTask(this)">
-          <input type="date" name="date" class="date__box" value=${payload?.date} onchange="editTodoItem(this)" onfocus="getCurrentDate(this)">
-          <i class="fas fa-edit" id="edit__icon" class="edit__task" onclick="updateTodoItem(this,${payload?.todo_id})"></i>
+          <p class="task">${taskInput}</p>
+          <p class="date__box">${formattedDate(payload?.date)}</p>
+          <i class="fas fa-edit" id="edit__icon" class="edit__task" onclick="updateTodoItem(this,${
+            payload?.todo_id
+          })"></i>
           <i class="fa fa-trash" onclick="deleteTodoItem(this)"></i>
         `;
     list.insertBefore(li, list.children[0]);
     message.innerHTML = "Task created successfully.";
     message.style.color = "green";
     resetForm();
+    messageDisplayTime();
   } catch (error) {
     console.log(error);
   }
@@ -135,6 +132,9 @@ function toggleTodoItem(event) {
     });
     localStorage.setItem("tasks", JSON.stringify(tasks));
     event.nextElementSibling.classList.toggle("completed");
+    const list = document.querySelector("ul");
+    const editIcon = list.querySelector("#edit__icon");
+    editIcon.classList.toggle("btn__visibility");
   } catch (error) {
     console.log(error);
   }
@@ -160,25 +160,6 @@ function deleteTodoItem(event) {
     console.log(error);
   }
 }
-
-let currentTask = null,
-  currentDueDate = null;
-
-const getCurrentTask = (event) => (currentTask = event.value);
-const getCurrentDate = (event) => (currentDueDate = event.value);
-
-const editTodoItem = (event) => {
-  try {
-    const todoList = JSON.parse(localStorage.getItem("tasks")) || [];
-    todoList.forEach((task) => {
-      if (task.task === currentTask) task.task = event.value;
-      if (task.date === currentDueDate) task.date = event.value;
-    });
-    localStorage.setItem("tasks", JSON.stringify(todoList));
-  } catch (error) {
-    console.log(error);
-  }
-};
 
 function updateTodoItem(event, todoId) {
   taskId = todoId;
@@ -220,6 +201,19 @@ const editCurrentTask = (taskId) => {
   editButton.classList.remove("visibility");
   message.innerHTML = "Task updated successfully.";
   message.style.color = "green";
+  messageDisplayTime();
   renderTodoList();
   resetForm();
 };
+
+function messageDisplayTime() {
+  setTimeout(() => {
+    message.style.display = "none";
+  }, 5000);
+}
+
+function formattedDate(inputDate) {
+  const date = new Date(inputDate);
+  const options = { day: "2-digit", month: "short", year: "numeric" };
+  return date.toLocaleDateString("en-US", options);
+}
