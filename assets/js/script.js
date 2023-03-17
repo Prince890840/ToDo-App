@@ -55,7 +55,7 @@ function renderTodoList() {
           <i class="fas fa-edit" id="edit__icon" class="edit__task" onclick="updateTodoItem(this,${
             task?.todo_id
           })"></i>
-          <i class="fa fa-trash" onclick="deleteTodoItem(this)"></i>
+          <i class="fa fa-trash" onclick="deleteTodoItem(${task?.todo_id})"></i>
         `;
         list.insertBefore(li, list.children[0]);
       });
@@ -101,7 +101,9 @@ function addTodo() {
           <i class="fas fa-edit" id="edit__icon" class="edit__task" onclick="updateTodoItem(this,${
             payload?.todo_id
           })"></i>
-          <i class="fa fa-trash" onclick="deleteTodoItem(this)"></i>
+          <i class="fa fa-trash" onclick="deleteTodoItem(${
+            payload?.todo_id
+          })"></i>
         `;
     list.insertBefore(li, list.children[0]);
     message.innerHTML = "Task created successfully.";
@@ -136,18 +138,15 @@ function toggleTodoItem(event) {
   }
 }
 
-function deleteTodoItem(event) {
+function deleteTodoItem(todoId) {
   try {
-    let todoList = Array.from(JSON.parse(localStorage.getItem("tasks")));
-    todoList &&
+    let todoList = JSON.parse(localStorage.getItem("tasks")) || [];
+    todoList =
+      todoList &&
       todoList?.length > 0 &&
-      todoList?.forEach((task) => {
-        if (task.task === event.parentNode.children[1].value) {
-          todoList?.splice(todoList.indexOf(task), 1);
-        }
-      });
+      todoList?.filter((item) => item.todo_id !== todoId);
     localStorage.setItem("tasks", JSON.stringify(todoList));
-    event.parentElement.remove();
+    renderTodoList();
     addButton.classList.add("visibility");
     addButton.classList.remove("btn__visibility");
     editButton.classList.remove("visibility");
