@@ -49,7 +49,9 @@ function renderTodoList() {
             task.completed ? "checked" : ""
           }>
           <p class="task">${task?.task}</p>
-          <p class="date__box">${formattedDate(task?.date)}</p>
+          <p class="date__box">${
+            task?.date ? formattedDate(task?.date) : "-"
+          }</p>
           <i class="fas fa-edit" id="edit__icon" class="edit__task" onclick="updateTodoItem(this,${
             task?.todo_id
           })"></i>
@@ -64,16 +66,8 @@ function renderTodoList() {
 
 function addTodo() {
   try {
-    if (task.value === "" && dateInput.value === "") {
-      message.innerHTML = "Task and date can't be blank.";
-      messageDisplayTime();
-      return;
-    } else if (task.value === "") {
-      message.innerHTML = "Todo can't be blank.";
-      messageDisplayTime();
-      return;
-    } else if (dateInput.value === "") {
-      message.innerHTML = "Date can't be blank.";
+    if (task.value === "") {
+      message.innerHTML = "Task can't be blank.";
       messageDisplayTime();
       return;
     } else {
@@ -101,7 +95,9 @@ function addTodo() {
     li.innerHTML = `
           <input type="checkbox" onclick="toggleTodoItem(this)" id="check">
           <p class="task">${taskInput}</p>
-          <p class="date__box">${formattedDate(payload?.date)}</p>
+          <p class="date__box">${
+            payload?.date ? formattedDate(payload?.date) : "-"
+          }</p>
           <i class="fas fa-edit" id="edit__icon" class="edit__task" onclick="updateTodoItem(this,${
             payload?.todo_id
           })"></i>

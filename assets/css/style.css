@@ -89,6 +89,7 @@ main {
 .date__box {
   width: 22%;
   margin: 0 10px;
+  text-align: center;
 }
 
 .input__bg {
