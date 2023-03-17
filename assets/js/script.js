@@ -1,10 +1,10 @@
+window.onload = renderTodoList;
+
 const task = document.querySelector("form input");
 
 const list = document.querySelector("ul");
 
 const todoForm = document.querySelector("form");
-
-let message = document.getElementById("msg");
 
 let dateInput = document.getElementById("dateInput");
 
@@ -16,14 +16,35 @@ editButton.classList.add("btn__visibility");
 var today = new Date().toISOString().split("T")[0];
 document.getElementsByName("date")[0].setAttribute("min", today);
 
-window.onload = renderTodoList;
+let taskId;
+
+dateInput.disabled = true;
+addButton.disabled = true;
+editButton.disabled = true;
+
+task.addEventListener("input", stateHandle);
+
+function stateHandle() {
+  if (document.querySelector("form input").value === "") {
+    dateInput.disabled = true;
+    addButton.disabled = true;
+    editButton.disabled = true;
+  } else {
+    console.log("Else condition called.");
+    dateInput.disabled = false;
+    addButton.disabled = false;
+    editButton.disabled = false;
+  }
+}
 
 function resetForm() {
   task.value = "";
   dateInput.value = "";
+  dateInput.disabled = true;
+  addButton.disabled = true;
+  editButton.disabled = true;
+  taskId = "";
 }
-
-let taskId;
 
 function renderTodoList() {
   try {
@@ -42,18 +63,30 @@ function renderTodoList() {
       todoList?.length > 0 &&
       todoList?.forEach((task) => {
         const li = document.createElement("li");
+
+        const dueDate = new Date(task?.date);
+        const currentDate = new Date();
+
         li.innerHTML = `
           <input type="checkbox" 
           onclick="toggleTodoItem(this)" id="check" ${
-            task.completed ? "checked" : ""
+            task?.completed ? "checked" : ""
           }>
-          <p class="task">${task?.task}</p>
-          <p class="date__box">${
-            task?.date ? formattedDate(task?.date) : "-"
-          }</p>
-          <i class="fas fa-edit" id="edit__icon" class="edit__task" onclick="updateTodoItem(${
-            task?.todo_id
-          })"></i>
+          <p class="task truncate ${task?.completed ? "completed" : ""}">${
+          task?.task
+        }</p>
+          <p class="date__box ${
+            task?.date
+              ? dueDate.getTime() < currentDate.getTime()
+                ? "overdue__date"
+                : "leftfordue__date"
+              : ""
+          }">${task?.date ? formattedDate(task?.date) : "-"}</p>
+          <i class="fas fa-edit ${
+            task?.completed ? "update__icon" : ""
+          }" id="edit__icon" class="edit__task" onclick="updateTodoItem(${
+          task?.todo_id
+        })"></i>
           <i class="fa fa-trash" onclick="deleteTodoItem(${task?.todo_id})"></i>
         `;
         list.insertBefore(li, list.children[0]);
@@ -65,14 +98,6 @@ function renderTodoList() {
 
 function addTodo() {
   try {
-    if (task.value === "") {
-      message.innerHTML = "Task can't be blank.";
-      messageDisplayTime();
-      return;
-    } else {
-      message.innerHTML = "";
-    }
-
     const taskInput = task.value.trim();
 
     const payload = {
@@ -91,27 +116,38 @@ function addTodo() {
     );
 
     const li = document.createElement("li");
+    const dueDate = new Date(payload?.date);
+    const currentDate = new Date();
     li.innerHTML = `
           <input type="checkbox" onclick="toggleTodoItem(this)" id="check">
-          <p class="task">${taskInput}</p>
-          <p class="date__box">${
-            payload?.date ? formattedDate(payload?.date) : "-"
-          }</p>
-          <i class="fas fa-edit" id="edit__icon" class="edit__task" onclick="updateTodoItem(${
-            payload?.todo_id
-          })"></i>
+          <p class="task truncate">${taskInput}</p>
+          <p class="date__box ${
+            payload?.date
+              ? dueDate.getTime() < currentDate.getTime()
+                ? "overdue__date"
+                : "leftfordue__date"
+              : ""
+          }">${payload?.date ? formattedDate(payload?.date) : "-"}</p>
+          <i class="fas fa-edit ${
+            payload?.completed ? "update__icon" : ""
+          }" id="edit__icon" class="edit__task" onclick="updateTodoItem(${
+      payload?.todo_id
+    })"></i>
           <i class="fa fa-trash" onclick="deleteTodoItem(${
             payload?.todo_id
           })"></i>
         `;
     list.insertBefore(li, list.children[0]);
-    message.innerHTML = "Task created successfully.";
-    message.style.color = "green";
+    // toast("Task created successfully.", "#61bd4f");
     resetForm();
-    messageDisplayTime();
   } catch (error) {
     console.log(error);
   }
+}
+
+const taskElement = list.querySelector("truncate");
+if (task.value.length > 20) {
+  taskElement.classList.add("truncate");
 }
 
 todoForm.addEventListener("submit", (event) => {
@@ -129,9 +165,6 @@ function toggleTodoItem(event) {
     });
     localStorage.setItem("tasks", JSON.stringify(tasks));
     event.nextElementSibling.classList.toggle("completed");
-    const list = document.querySelector("ul");
-    const editIcon = list.querySelector("#edit__icon");
-    editIcon.classList.toggle("btn__visibility");
   } catch (error) {
     console.log(error);
   }
@@ -149,6 +182,7 @@ function deleteTodoItem(todoId) {
     addButton.classList.add("visibility");
     addButton.classList.remove("btn__visibility");
     editButton.classList.remove("visibility");
+    // toast("Task deleted successfully.", "#61bd4f");
     resetForm();
   } catch (error) {
     console.log(error);
@@ -166,6 +200,8 @@ function updateTodoItem(todoId) {
   dateInput.value = todo?.date;
   addButton.classList.add("btn__visibility");
   editButton.classList.add("visibility");
+  dateInput.disabled = false;
+  editButton.disabled = false;
 }
 
 editButton.addEventListener("click", (event) => {
@@ -176,11 +212,15 @@ editButton.addEventListener("click", (event) => {
 task.addEventListener("keydown", (event) => {
   if (event.key === "Enter" || event.keyCode === 13) {
     event.preventDefault();
-    editCurrentTask(taskId);
+    if (taskId) {
+      editCurrentTask(taskId);
+    } else {
+      addTodo();
+    }
   }
 });
 
-const editCurrentTask = (taskId) => {
+function editCurrentTask(taskId) {
   const todoList = JSON.parse(localStorage.getItem("tasks")) || [];
   const taskInput = task.value.trim();
   const index = todoList?.findIndex((obj) => obj.todo_id === taskId);
@@ -193,21 +233,23 @@ const editCurrentTask = (taskId) => {
   addButton.classList.add("visibility");
   addButton.classList.remove("btn__visibility");
   editButton.classList.remove("visibility");
-  message.innerHTML = "Task updated successfully.";
-  message.style.color = "green";
-  messageDisplayTime();
+  // toast("Task updated successfully.", "#61bd4f");
   renderTodoList();
   resetForm();
-};
-
-function messageDisplayTime() {
-  setTimeout(() => {
-    message.style.display = "none";
-  }, 5000);
 }
 
 function formattedDate(inputDate) {
   const date = new Date(inputDate);
   const options = { day: "2-digit", month: "short", year: "numeric" };
   return date.toLocaleDateString("en-US", options);
+}
+
+function toast(message, bgColor) {
+  var x = document.getElementById("snackbar");
+  x.className = "show";
+  x.innerHTML = message;
+  x.style.backgroundColor = bgColor;
+  setTimeout(function () {
+    x.className = x.className.replace("show", "");
+  }, 3000);
 }
