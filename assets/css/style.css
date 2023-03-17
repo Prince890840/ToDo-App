@@ -160,6 +160,19 @@ input::-webkit-search-cancel-button:hover {
   cursor: pointer;
 }
 
+.input_lbls {
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 740px;
+}
+
+.datelabel {
+  margin-right: 110px;
+}
+
 p {
   width: 100%;
   text-align: start;
@@ -169,6 +182,7 @@ p {
 .completed {
   text-decoration: line-through;
   background: #d3d1d1;
+  opacity: 0.5;
 }
 
 .btn__visibility {
@@ -177,10 +191,6 @@ p {
 
 .visibility {
   visibility: visible;
-}
-
-.update__icon {
-  visibility: hidden;
 }
 
 .overdue__date {
@@ -199,10 +209,16 @@ p {
   text-overflow: ellipsis;
   cursor: pointer;
 }
+
 .truncate:hover,
 .truncate:focus {
   white-space: normal;
   overflow: visible;
+}
+
+.smtask,
+.smdate {
+  display: none;
 }
 
 #snackbar {
@@ -276,16 +292,16 @@ p {
   }
 
   .user__request {
-    width: 316px;
+    max-width: 100%;
   }
 
   .app__wrapper ul {
-    max-width: 320px;
+    max-width: 100%;
     margin-top: 15px;
   }
 
   #dateInput {
-    width: 270px;
+    width: 100%;
   }
 
   .task {
@@ -294,6 +310,22 @@ p {
 
   .date__box {
     font-size: 10px;
+  }
+
+  .input_lbls {
+    display: none;
+  }
+
+  .smtask,
+  .smdate {
+    display: block;
+    max-width: 100%;
+    text-align: start;
+  }
+
+  .add__btn,
+  .edit__btn {
+    margin-top: 10px;
   }
 }
 
@@ -303,19 +335,45 @@ p {
   }
 
   .user__request {
-    width: 290px;
+    width: 100%;
   }
 
   .app__wrapper ul {
-    max-width: 466px;
+    max-width: 100%;
   }
 
   .task {
-    width: 58%;
+    max-width: 58%;
     font-size: 14px;
   }
 
   .date__box {
     font-size: 14px;
+  }
+
+  .input_lbls {
+    max-width: 475px;
+  }
+
+  .smtask,
+  .smdate {
+    display: block;
+    max-width: 100%;
+    text-align: start;
+  }
+
+  .input_lbls {
+    display: none;
+  }
+
+  #dateInput {
+    width: 100%;
+  }
+
+  .add__btn,
+  .edit__btn {
+    margin: 10px 0;
+    padding: 10px 20px;
+    display: inline-flex;
   }
 }

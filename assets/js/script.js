@@ -30,7 +30,6 @@ function stateHandle() {
     addButton.disabled = true;
     editButton.disabled = true;
   } else {
-    console.log("Else condition called.");
     dateInput.disabled = false;
     addButton.disabled = false;
     editButton.disabled = false;
@@ -42,12 +41,12 @@ function resetForm() {
   dateInput.value = "";
   dateInput.disabled = true;
   addButton.disabled = true;
-  editButton.disabled = true;
   taskId = "";
 }
 
 function renderTodoList() {
   try {
+    task.focus();
     const list = document.querySelector("ul");
     list.innerHTML = "";
 
@@ -68,9 +67,8 @@ function renderTodoList() {
         const currentDate = new Date();
 
         li.innerHTML = `
-          <input type="checkbox" 
-          onclick="toggleTodoItem(this)" id="check" ${
-            task?.completed ? "checked" : ""
+          <input type="checkbox" onclick="toggleTodoItem(this)" id="check" ${
+            task.completed ? "checked" : ""
           }>
           <p class="task truncate ${task?.completed ? "completed" : ""}">${
           task?.task
@@ -82,11 +80,9 @@ function renderTodoList() {
                 : "leftfordue__date"
               : ""
           }">${task?.date ? formattedDate(task?.date) : "-"}</p>
-          <i class="fas fa-edit ${
-            task?.completed ? "update__icon" : ""
-          }" id="edit__icon" class="edit__task" onclick="updateTodoItem(${
-          task?.todo_id
-        })"></i>
+          <i class="fas fa-edit" id="edit__icon" onclick="updateTodoItem(${
+            task?.todo_id
+          })" style="display: ${task?.completed ? "none" : "block"}"></i>
           <i class="fa fa-trash" onclick="deleteTodoItem(${task?.todo_id})"></i>
         `;
         list.insertBefore(li, list.children[0]);
@@ -128,17 +124,16 @@ function addTodo() {
                 : "leftfordue__date"
               : ""
           }">${payload?.date ? formattedDate(payload?.date) : "-"}</p>
-          <i class="fas fa-edit ${
-            payload?.completed ? "update__icon" : ""
-          }" id="edit__icon" class="edit__task" onclick="updateTodoItem(${
-      payload?.todo_id
-    })"></i>
+          <i class="fas fa-edit" id="edit__icon" onclick="updateTodoItem(${
+            payload?.todo_id
+          })"></i>
           <i class="fa fa-trash" onclick="deleteTodoItem(${
             payload?.todo_id
           })"></i>
         `;
     list.insertBefore(li, list.children[0]);
-    // toast("Task created successfully.", "#61bd4f");
+    toast("Task created successfully.", "#61bd4f");
+    renderTodoList();
     resetForm();
   } catch (error) {
     console.log(error);
@@ -157,14 +152,20 @@ todoForm.addEventListener("submit", (event) => {
 
 function toggleTodoItem(event) {
   try {
-    let tasks = Array.from(JSON.parse(localStorage.getItem("tasks")));
-    tasks.forEach((task) => {
-      if (task.task === event.nextElementSibling.value) {
-        task.completed = !task.completed;
-      }
-    });
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-    event.nextElementSibling.classList.toggle("completed");
+    let todoList = Array.from(JSON.parse(localStorage.getItem("tasks")));
+    const taskId = Number(
+      event.parentNode
+        .querySelector("#edit__icon")
+        .getAttribute("onclick")
+        .match(/\d+/)[0]
+    );
+    let task = todoList.find((task) => task.todo_id === taskId);
+    if (task) {
+      task.completed = !task.completed;
+      localStorage.setItem("tasks", JSON.stringify(todoList));
+      event.nextElementSibling.classList.toggle("completed");
+    }
+    renderTodoList();
   } catch (error) {
     console.log(error);
   }
@@ -182,7 +183,7 @@ function deleteTodoItem(todoId) {
     addButton.classList.add("visibility");
     addButton.classList.remove("btn__visibility");
     editButton.classList.remove("visibility");
-    // toast("Task deleted successfully.", "#61bd4f");
+    toast("Task deleted successfully.", "#61bd4f");
     resetForm();
   } catch (error) {
     console.log(error);
@@ -233,7 +234,7 @@ function editCurrentTask(taskId) {
   addButton.classList.add("visibility");
   addButton.classList.remove("btn__visibility");
   editButton.classList.remove("visibility");
-  // toast("Task updated successfully.", "#61bd4f");
+  toast("Task updated successfully.", "#61bd4f");
   renderTodoList();
   resetForm();
 }
