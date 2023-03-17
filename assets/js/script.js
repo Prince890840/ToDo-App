@@ -31,7 +31,6 @@ function renderTodoList() {
     list.innerHTML = "";
 
     while (list.firstChild) {
-      console.log("Inside");
       list.removeChild(list.firstChild);
     }
 
@@ -52,7 +51,7 @@ function renderTodoList() {
           <p class="date__box">${
             task?.date ? formattedDate(task?.date) : "-"
           }</p>
-          <i class="fas fa-edit" id="edit__icon" class="edit__task" onclick="updateTodoItem(this,${
+          <i class="fas fa-edit" id="edit__icon" class="edit__task" onclick="updateTodoItem(${
             task?.todo_id
           })"></i>
           <i class="fa fa-trash" onclick="deleteTodoItem(${task?.todo_id})"></i>
@@ -98,7 +97,7 @@ function addTodo() {
           <p class="date__box">${
             payload?.date ? formattedDate(payload?.date) : "-"
           }</p>
-          <i class="fas fa-edit" id="edit__icon" class="edit__task" onclick="updateTodoItem(this,${
+          <i class="fas fa-edit" id="edit__icon" class="edit__task" onclick="updateTodoItem(${
             payload?.todo_id
           })"></i>
           <i class="fa fa-trash" onclick="deleteTodoItem(${
@@ -156,7 +155,7 @@ function deleteTodoItem(todoId) {
   }
 }
 
-function updateTodoItem(event, todoId) {
+function updateTodoItem(todoId) {
   taskId = todoId;
   let todoList = Array.from(JSON.parse(localStorage.getItem("tasks")));
   const todo =
