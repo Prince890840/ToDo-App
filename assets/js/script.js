@@ -13,28 +13,31 @@ let addButton = document.querySelector(".add__btn");
 let editButton = document.querySelector(".edit__btn");
 editButton.classList.add("btn__visibility");
 
-var today = new Date().toISOString().split("T")[0];
-document.getElementsByName("date")[0].setAttribute("min", today);
+var today = new Date();
+var dd = String(today.getDate()).padStart(2, "0");
+var mm = String(today.getMonth() + 1).padStart(2, "0");
+var yyyy = today.getFullYear();
 
-let taskId;
+today = yyyy + "-" + mm + "-" + dd;
+document.getElementById("dateInput").setAttribute("min", today);
+
+var modal = document.getElementById("myModal");
+var closeButton = document.querySelector(".close");
+var cancelDeleteBtn = document.getElementById("cancelDelete");
+var confirmDeleteBtn = document.getElementById("confirmDelete");
+
+let taskId, todoIdToDelete;
 
 dateInput.disabled = true;
 addButton.disabled = true;
 editButton.disabled = true;
 
-task.addEventListener("input", stateHandle);
-
-function stateHandle() {
-  if (document.querySelector("form input").value === "") {
-    dateInput.disabled = true;
-    addButton.disabled = true;
-    editButton.disabled = true;
-  } else {
-    dateInput.disabled = false;
-    addButton.disabled = false;
-    editButton.disabled = false;
-  }
-}
+task.addEventListener("input", () => {
+  const isInputEmpty = !document.querySelector("form input").value;
+  dateInput.disabled = isInputEmpty;
+  addButton.disabled = isInputEmpty;
+  editButton.disabled = isInputEmpty;
+});
 
 function resetForm() {
   task.value = "";
@@ -80,10 +83,14 @@ function renderTodoList() {
                 : "leftfordue__date"
               : ""
           }">${task?.date ? formattedDate(task?.date) : "-"}</p>
-          <i class="fas fa-edit" id="edit__icon" onclick="updateTodoItem(${
+          <i class="fas fa-edit ${
+            task?.completed ? "disabled" : ""
+          }" id="edit__icon" onclick="updateTodoItem(${
+          task?.todo_id
+        })"></i>                   
+          <i class="fa fa-trash" onclick="showDeleteModal(${
             task?.todo_id
-          })" style="display: ${task?.completed ? "none" : "block"}"></i>
-          <i class="fa fa-trash" onclick="deleteTodoItem(${task?.todo_id})"></i>
+          })"></i>
         `;
         list.insertBefore(li, list.children[0]);
       });
@@ -94,11 +101,9 @@ function renderTodoList() {
 
 function addTodo() {
   try {
-    const taskInput = task.value.trim();
-
     const payload = {
       todo_id: new Date().getTime(),
-      task: taskInput,
+      task: task.value.trim(),
       completed: false,
       date: dateInput.value,
     };
@@ -110,29 +115,7 @@ function addTodo() {
         payload,
       ])
     );
-
-    const li = document.createElement("li");
-    const dueDate = new Date(payload?.date);
-    const currentDate = new Date();
-    li.innerHTML = `
-          <input type="checkbox" onclick="toggleTodoItem(this)" id="check">
-          <p class="task truncate">${taskInput}</p>
-          <p class="date__box ${
-            payload?.date
-              ? dueDate.getTime() < currentDate.getTime()
-                ? "overdue__date"
-                : "leftfordue__date"
-              : ""
-          }">${payload?.date ? formattedDate(payload?.date) : "-"}</p>
-          <i class="fas fa-edit" id="edit__icon" onclick="updateTodoItem(${
-            payload?.todo_id
-          })"></i>
-          <i class="fa fa-trash" onclick="deleteTodoItem(${
-            payload?.todo_id
-          })"></i>
-        `;
-    list.insertBefore(li, list.children[0]);
-    toast("Task created successfully.", "#61bd4f");
+    toast("Task created successfully.");
     renderTodoList();
     resetForm();
   } catch (error) {
@@ -171,25 +154,6 @@ function toggleTodoItem(event) {
   }
 }
 
-function deleteTodoItem(todoId) {
-  try {
-    let todoList = JSON.parse(localStorage.getItem("tasks")) || [];
-    todoList =
-      todoList &&
-      todoList?.length > 0 &&
-      todoList?.filter((item) => item.todo_id !== todoId);
-    localStorage.setItem("tasks", JSON.stringify(todoList));
-    renderTodoList();
-    addButton.classList.add("visibility");
-    addButton.classList.remove("btn__visibility");
-    editButton.classList.remove("visibility");
-    toast("Task deleted successfully.", "#61bd4f");
-    resetForm();
-  } catch (error) {
-    console.log(error);
-  }
-}
-
 function updateTodoItem(todoId) {
   taskId = todoId;
   let todoList = Array.from(JSON.parse(localStorage.getItem("tasks")));
@@ -200,7 +164,9 @@ function updateTodoItem(todoId) {
   task.value = todo?.task;
   dateInput.value = todo?.date;
   addButton.classList.add("btn__visibility");
+  addButton.classList.remove("visibility");
   editButton.classList.add("visibility");
+  editButton.classList.remove("btn__visibility");
   dateInput.disabled = false;
   editButton.disabled = false;
 }
@@ -223,18 +189,18 @@ task.addEventListener("keydown", (event) => {
 
 function editCurrentTask(taskId) {
   const todoList = JSON.parse(localStorage.getItem("tasks")) || [];
-  const taskInput = task.value.trim();
   const index = todoList?.findIndex((obj) => obj.todo_id === taskId);
   todoList[index] = {
     ...todoList[index],
-    task: taskInput,
+    task: task.value.trim(),
     date: dateInput.value,
   };
   localStorage.setItem("tasks", JSON.stringify(todoList));
   addButton.classList.add("visibility");
   addButton.classList.remove("btn__visibility");
+  editButton.classList.add("btn__visibility");
   editButton.classList.remove("visibility");
-  toast("Task updated successfully.", "#61bd4f");
+  toast("Task updated successfully.");
   renderTodoList();
   resetForm();
 }
@@ -245,12 +211,56 @@ function formattedDate(inputDate) {
   return date.toLocaleDateString("en-US", options);
 }
 
-function toast(message, bgColor) {
+function toast(message) {
   var x = document.getElementById("snackbar");
   x.className = "show";
   x.innerHTML = message;
-  x.style.backgroundColor = bgColor;
+  x.style.backgroundColor = "#61bd4f";
   setTimeout(function () {
     x.className = x.className.replace("show", "");
   }, 3000);
 }
+
+function showDeleteModal(todoId) {
+  todoIdToDelete = todoId;
+  modal.style.display = "block";
+}
+
+function hideDeleteModal() {
+  modal.style.display = "none";
+}
+
+function deleteConfirmed() {
+  deleteTodoItem(todoIdToDelete);
+  hideDeleteModal();
+}
+
+function deleteTodoItem(todoId) {
+  try {
+    let todoList = JSON.parse(localStorage.getItem("tasks")) || [];
+    todoList =
+      todoList &&
+      todoList?.length > 0 &&
+      todoList?.filter((item) => item.todo_id !== todoId);
+    localStorage.setItem("tasks", JSON.stringify(todoList));
+    renderTodoList();
+    addButton.classList.add("visibility");
+    addButton.classList.remove("btn__visibility");
+    editButton.classList.remove("visibility");
+    toast("Task deleted successfully.");
+    resetForm();
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+cancelDeleteBtn.addEventListener("click", hideDeleteModal);
+closeButton.addEventListener("click", hideDeleteModal);
+confirmDeleteBtn.addEventListener("click", deleteConfirmed);
+
+// Close the modal when the user clicks outside of it
+window.onclick = function (event) {
+  if (event.target == modal) {
+    hideDeleteModal();
+  }
+};

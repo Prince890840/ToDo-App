@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
     <title>Todo-App</title>
     <link rel="stylesheet" href="./assets/css/style.css" />
     <link
@@ -21,7 +24,7 @@
     <main>
       <section class="wrapper">
         <div class="app__wrapper">
-          <form>
+          <form autocomplete="off">
             <div class="input_lbls">
               <label for="task">Task:</label>
               <label for="dateInput" class="datelabel">Due date:</label>
@@ -40,10 +43,53 @@
               name="date"
               id="dateInput"
             />
-            <button class="add__btn" type="submit" id="btn">Add</button>
-            <button class="edit__btn" id="edit">Save</button>
+            <button class="add__btn" type="submit" id="btn">
+              <img
+                src="./assets/images/add_icon.png"
+                alt="add__icon"
+                height="14px"
+                width="14px"
+              />
+              <span>Add</span>
+            </button>
+            <button class="edit__btn" id="edit">
+              <img
+                src="./assets/images/save_icon.png"
+                alt="add__icon"
+                height="14px"
+                width="14px"
+              /><span>Save</span>
+            </button>
             <div id="snackbar"></div>
           </form>
+          <!-- The Modal -->
+          <div id="myModal" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+              <div class="close">X</div>
+              <div class="modal__img">
+                <img
+                  src="./assets/images/delete.png"
+                  alt="cross_icon"
+                  height="60px"
+                  width="60px"
+                />
+              </div>
+              <h3>Are you sure?</h3>
+              <p class="modal__para">
+                Do you really want to delete these records? This process cannot
+                be undone.
+              </p>
+              <div class="modal__footer">
+                <button class="btn btn-secondary" id="cancelDelete">
+                  Cancel
+                </button>
+                <button class="btn btn-danger" id="confirmDelete">
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
           <ul id="todoList"></ul>
         </div>
       </section>
