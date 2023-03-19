@@ -288,7 +288,8 @@ p {
   pointer-events: none;
 }
 
-.edit__btn img {
+.edit__btn img,
+.add__btn img {
   object-fit: cover;
   margin: -2px;
 }
